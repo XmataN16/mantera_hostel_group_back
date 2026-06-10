@@ -1,12 +1,10 @@
 package ru.mantera.hostel.dto.reservation;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.mantera.hostel.enums.ReservationSource;
 
 import java.time.LocalDate;
@@ -19,7 +17,6 @@ public record ReservationCreateRequest(
         @NotNull(message = "guestId обязателен")
         Long guestId,
 
-        @NotBlank(message = "reservationNumber обязателен")
         String reservationNumber,
 
         @NotNull(message = "source обязателен")
@@ -44,4 +41,5 @@ public record ReservationCreateRequest(
         @NotEmpty(message = "Нужно добавить хотя бы одну комнату в бронирование")
         @Valid
         List<ReservationRoomRequest> rooms
-) {}
+) {
+}

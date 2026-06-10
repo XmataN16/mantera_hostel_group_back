@@ -1,6 +1,5 @@
 package ru.mantera.hostel.dto.reservation;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -19,7 +18,7 @@ public record ReservationRoomRequest(
         @Positive(message = "guestsCount должен быть больше 0")
         Integer guestsCount,
 
-        @NotNull(message = "pricePerNight обязателен")
         @PositiveOrZero(message = "pricePerNight не может быть отрицательным")
         BigDecimal pricePerNight
-) {}
+) {
+}
