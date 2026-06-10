@@ -1,4 +1,8 @@
 package ru.mantera.hostel.dto.guest;
 
-public class GuestShortResponse {
+public record GuestShortResponse(
+        Long id,
+        String fullName,
+        String phone
+) {
 }
