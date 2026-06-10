@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.mantera.hostel.dto.guest.*;
 import ru.mantera.hostel.service.GuestService;
+import ru.mantera.hostel.dto.guest.GuestStayHistoryResponse;
 
 import java.util.List;
 
@@ -51,5 +52,10 @@ public class GuestController {
             @PathVariable Long id) {
 
         guestService.delete(id);
+    }
+
+    @GetMapping("/{id}/history")
+    public List<GuestStayHistoryResponse> getStayHistory(@PathVariable Long id) {
+        return guestService.getStayHistory(id);
     }
 }

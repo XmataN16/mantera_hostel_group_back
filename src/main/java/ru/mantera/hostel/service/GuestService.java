@@ -8,6 +8,9 @@ import ru.mantera.hostel.entity.Guest;
 import ru.mantera.hostel.exception.ConflictException;
 import ru.mantera.hostel.exception.ResourceNotFoundException;
 import ru.mantera.hostel.repository.GuestRepository;
+import ru.mantera.hostel.dto.guest.GuestStayHistoryResponse;
+import ru.mantera.hostel.entity.Reservation;
+import ru.mantera.hostel.repository.ReservationRepository;
 
 import java.util.List;
 
@@ -17,6 +20,31 @@ import java.util.List;
 public class GuestService {
 
     private final GuestRepository guestRepository;
+    private final ReservationRepository reservationRepository;
+
+    @Transactional(readOnly = true)
+    public List<GuestStayHistoryResponse> getStayHistory(Long guestId) {
+        if (!guestRepository.existsById(guestId)) {
+            throw new ResourceNotFoundException("Guest not found: " + guestId);
+        }
+
+        return reservationRepository.findByGuestIdOrderByCheckInDateDesc(guestId)
+                .stream()
+                .map(this::toStayHistoryResponse)
+                .toList();
+    }
+
+    private GuestStayHistoryResponse toStayHistoryResponse(Reservation reservation) {
+        return new GuestStayHistoryResponse(
+                reservation.getId(),
+                reservation.getReservationNumber(),
+                reservation.getHotelId(),
+                reservation.getCheckInDate(),
+                reservation.getCheckOutDate(),
+                reservation.getStatus(),
+                reservation.getTotalAmount()
+        );
+    }
 
     @Transactional(readOnly = true)
     public List<GuestResponse> getAll() {

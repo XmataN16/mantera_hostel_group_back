@@ -28,4 +28,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     );
 
     List<Reservation> findByHotelIdAndStatus(Long hotelId, ReservationStatus status);
+
+    List<Reservation> findByGuestIdOrderByCheckInDateDesc(Long guestId);
 }

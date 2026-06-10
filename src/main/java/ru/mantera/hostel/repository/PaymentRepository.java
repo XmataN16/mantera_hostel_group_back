@@ -8,4 +8,6 @@ import java.util.List;
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByReservation_IdOrderByCreatedAtAsc(Long reservationId);
+
+    List<Payment> findByReservation_HotelId(Long hotelId);
 }

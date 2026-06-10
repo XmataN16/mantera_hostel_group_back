@@ -14,4 +14,6 @@ public interface ReservationServiceItemRepository extends JpaRepository<Reservat
             Long id,
             Long reservationId
     );
+
+    List<ReservationServiceItem> findByReservation_HotelId(Long hotelId);
 }
