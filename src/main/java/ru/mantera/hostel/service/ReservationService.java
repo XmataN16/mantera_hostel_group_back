@@ -31,6 +31,9 @@ import ru.mantera.hostel.repository.ReservationRepository;
 import ru.mantera.hostel.repository.ReservationRoomRepository;
 import ru.mantera.hostel.repository.RoomRepository;
 import ru.mantera.hostel.repository.RoomTypeRepository;
+import ru.mantera.hostel.entity.RatePlan;
+import ru.mantera.hostel.repository.RatePlanRepository;
+import ru.mantera.hostel.repository.RoomTypeRateRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,6 +58,8 @@ public class ReservationService {
     private final GuestRepository guestRepository;
     private final RoomRepository roomRepository;
     private final RoomTypeRepository roomTypeRepository;
+    private final RatePlanRepository ratePlanRepository;
+    private final RoomTypeRateRepository roomTypeRateRepository;
 
     @Transactional(readOnly = true)
     public List<ReservationResponse> findAll() {
@@ -443,9 +448,11 @@ public class ReservationService {
                 }
             }
 
-            BigDecimal pricePerNight = roomRequest.pricePerNight() != null
-                    ? roomRequest.pricePerNight()
-                    : roomType.getBasePrice();
+            BigDecimal pricePerNight = resolvePricePerNight(
+                    roomRequest,
+                    roomType,
+                    checkIn
+            );
 
             ReservationRoom reservationRoom = ReservationRoom.builder()
                     .reservation(reservation)
@@ -459,6 +466,37 @@ public class ReservationService {
 
             reservation.getReservationRooms().add(reservationRoom);
         }
+    }
+
+    private BigDecimal resolvePricePerNight(
+            ReservationRoomRequest roomRequest,
+            RoomType roomType,
+            LocalDate checkIn
+    ) {
+        if (roomRequest.pricePerNight() != null) {
+            return roomRequest.pricePerNight();
+        }
+
+        if (roomRequest.ratePlanId() == null) {
+            return roomType.getBasePrice();
+        }
+
+        RatePlan ratePlan = ratePlanRepository.findById(roomRequest.ratePlanId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Тариф с id=" + roomRequest.ratePlanId() + " не найден"
+                ));
+
+        if (!ratePlan.getHotel().getId().equals(roomType.getHotel().getId())) {
+            throw new BadRequestException("Тариф не относится к отелю выбранной категории номера");
+        }
+
+        return roomTypeRateRepository.findActualRate(
+                        roomType.getId(),
+                        ratePlan.getId(),
+                        checkIn
+                )
+                .map(rate -> rate.getPrice())
+                .orElse(roomType.getBasePrice());
     }
 
     private void validateExistingRoomsForPeriod(

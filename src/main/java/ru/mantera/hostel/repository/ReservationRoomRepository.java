@@ -14,16 +14,16 @@ public interface ReservationRoomRepository extends JpaRepository<ReservationRoom
     List<ReservationRoom> findByReservationId(Long reservationId);
 
     @Query(value = """
-            select case when count(*) > 0 then true else false end
-            from reservation_rooms rr
-            join reservations r on r.id = rr.reservation_id
-            where rr.room_id = :roomId
-              and rr.status <> 'CANCELLED'
-              and r.status not in ('CANCELLED', 'NO_SHOW')
-              and r.check_in_date < :checkOutDate
-              and r.check_out_date > :checkInDate
-              and (:excludeReservationId is null or r.id <> :excludeReservationId)
-            """, nativeQuery = true)
+        select case when count(*) > 0 then true else false end
+        from reservation_rooms rr
+        join reservations r on r.id = rr.reservation_id
+        where rr.room_id = :roomId
+          and rr.status <> 'CANCELLED'
+          and r.status not in ('CANCELLED', 'NO_SHOW')
+          and r.check_in_date < :checkOutDate
+          and r.check_out_date > :checkInDate
+          and r.id <> coalesce(:excludeReservationId, -1)
+        """, nativeQuery = true)
     boolean existsOverlapForRoomFiltered(
             @Param("roomId") Long roomId,
             @Param("checkInDate") LocalDate checkInDate,
